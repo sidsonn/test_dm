@@ -20,7 +20,9 @@ do
 
 	echo $i	
 	x=1
+#------------------------------------------------------
 # while loop to check until file is present at storage
+#------------------------------------------------------
             while [ $x -le 1 ]
             do
 		     gsutil ls $i
@@ -50,21 +52,24 @@ echo ${#fileArray[@]}
 	 echo "Inside if llopp" 
    for var in ${fileArray[@]} 
    do
-          echo "inside for"
+          echo "Loading data from CSV to table "
           bq load --autodetect --source_format=CSV --project_id="dmgcp-foundation" supriya.finalTest $var Name:String,Address:String,ID:STRING
 
 	  echo "bq loaded"
 			  if [[ $? -eq 0 ]]; then
-				  echo "inserting"
+			  
+				  echo "Loading data from CSV to table successful.........starting insertion into stg table "
 
 				  var1=$(echo $var  | awk -F "/" '{print $4}')
 
 			      bq query --use_legacy_sql=false --project_id="dmgcp-foundation"  "insert into supriya.finalTest_stg select Name,Address,ID,cast(CURRENT_DATETIME() as date) as Created_dt,'$var1' as file_name from supriya.finalTest"
-  # After insertion truncating table
+              
+				  echo "Truncating table after insertion" 
   
 				 bq query --use_legacy_sql=false --project_id="dmgcp-foundation" "truncate table supriya.finalTest"
                  
-			      #bq query --use_legacy_sql=false --project_id="dmgcp-foundation"  "insert into  supriya.finalTest_stg1   SELECT Name,Address,ID,Created_dt,file_name FROM supriya.finalTest_stg where file_name like '$var1'"
+			    
+				#bq query --use_legacy_sql=false --project_id="dmgcp-foundation"  "insert into  supriya.finalTest_stg1   SELECT Name,Address,ID,Created_dt,file_name FROM supriya.finalTest_stg where file_name like '$var1'"
 
                   #bq query --destination_table supriya.finalTest_stg --use_legacy_sql=false --project_id="dmgcp-foundation" 'SELECT Name,Address,ID, CURRENT_DATE#TIME() as Created_dt,"$var" as file_name FROM `dmgcp-foundation.supriya.finalTest` where file_name like '$var'
 
@@ -73,7 +78,9 @@ echo ${#fileArray[@]}
 
 
 		if [[ $? -eq 0 ]]; then
-echo "1"
+		         
+				     echo "Extracting data into csv if transformation is successful" 
+
                     bq extract --destination_format CSV  --field_delimiter , --print_header=true --project_id="dmgcp-foundation" supriya.finalTest_stg  gs://testsourcebucket2-1/final.csv
 	       else
 		       echo "insertion failed"
