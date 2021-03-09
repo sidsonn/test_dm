@@ -1,0 +1,4 @@
+bq load --autodetect --source_format="CSV" --field_delimiter="," --skip_leading_rows=1 --allow_jagged_rows --project_id="dmgcp-foundation" assignment.tenCol gs://testsourcebucket2-1/allFiles/sevenCol.csv
+
+bq load --source_format=CSV  --skip_leading_rows=1 --project_id='dmgcp-foundation' "assignment.part
+ition" gs://testsourcebucket2-1/partitionedFile/2021-08-03.csv
